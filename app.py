@@ -128,6 +128,10 @@ try:
         fac_sel = st.sidebar.selectbox("Facultad", ["Todas"] + list(sorted(df_crudo['FACULTAD'].dropna().unique())))
         progs_disp = sorted(df_crudo[df_crudo['FACULTAD'] == fac_sel]['PROGRAMA'].dropna().unique()) if fac_sel != "Todas" else sorted(df_crudo['PROGRAMA'].dropna().unique())
         prog_sel = st.sidebar.selectbox("Programa Académico", ["Todos"] + list(progs_disp))
+        
+        # ---> NUEVO FILTRO: Periodo Académico <---
+        per_sel = st.sidebar.selectbox("Periodo Académico", ["Todos"] + list(sorted(df_crudo['PeriodoAcadémico'].dropna().unique(), reverse=True)))
+        
         est_sel = st.sidebar.selectbox("Estrato Socioeconómico", ["Todos"] + list(sorted(df_crudo['ESTRATO'].dropna().unique())))
         cohorte_sel = st.sidebar.selectbox("Cohorte (Año de Ingreso)", ["Todos"] + list(sorted(df_crudo['AÑOCOHORTE'].dropna().unique(), reverse=True)))
         gen_sel = st.sidebar.selectbox("Género", ["Todos"] + list(sorted(df_crudo['GENERO'].dropna().unique())))
@@ -139,6 +143,7 @@ try:
             df_base = df_base[mask]
         if fac_sel != "Todas": df_base = df_base[df_base['FACULTAD'] == fac_sel]
         if prog_sel != "Todos": df_base = df_base[df_base['PROGRAMA'] == prog_sel]
+        if per_sel != "Todos": df_base = df_base[df_base['PeriodoAcadémico'] == per_sel] # <--- Aplicación del filtro
         if est_sel != "Todos": df_base = df_base[df_base['ESTRATO'] == est_sel]
         if cohorte_sel != "Todos": df_base = df_base[df_base['AÑOCOHORTE'] == cohorte_sel]
         if gen_sel != "Todos": df_base = df_base[df_base['GENERO'] == gen_sel]
@@ -514,3 +519,4 @@ try:
 except Exception as e:
     st.error("Error crítico en la ejecución del Dashboard. Verifica los datos de entrada o contacta al administrador del sistema.")
     st.exception(e)
+
