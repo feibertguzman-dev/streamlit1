@@ -29,12 +29,18 @@ st.markdown("---")
 # -----------------------------------------------------------------------------
 @st.cache_data
 def load_data():
+    # Leer datos desde el CSV
     df = pd.read_csv("DataSPSSReingreso.csv", sep=";")
-    # Corrección clave: Renombrar la columna corrupta del Año de Cohorte
-    df = df.rename(columns=lambda x: x.replace('AÑ‘OCOHORTE', 'AÑOCOHORTE').strip())
     
+    # Solución definitiva al error de la columna: 
+    # Búsqueda inteligente que ignora los caracteres corruptos
+    for col in df.columns:
+        if 'COHORTE' in col.upper() and col.upper().startswith('A'):
+            df.rename(columns={col: 'AÑOCOHORTE'}, inplace=True)
+            
+    # Conversiones y limpieza de otros datos
     df['NIVEL'] = pd.to_numeric(df['NIVEL'], errors='coerce').fillna(0)
-    df['ESTRATO_NUM'] = df['ESTRATO'].astype(str).str.extract('(\d+)').astype(float).fillna(0)
+    df['ESTRATO_NUM'] = df['ESTRATO'].astype(str).str.extract(r'(\d+)').astype(float).fillna(0)
     df['CIUDADRESIDENCIA'] = df['CIUDADRESIDENCIA'].astype(str).str.upper().str.strip()
     return df
 
