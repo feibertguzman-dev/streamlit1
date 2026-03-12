@@ -14,8 +14,12 @@ from sklearn.tree import DecisionTreeClassifier, plot_tree
 # 1. CONFIGURACIÓN CORPORATIVA Y ESTADO DE SESIÓN (PANTALLA EMERGENTE)
 # -----------------------------------------------------------------------------
 st.set_page_config(page_title="Inteligencia de Reingresos - Unilasallista", layout="wide", initial_sidebar_state="expanded")
-sns.set_theme(style="whitegrid", palette="muted")
-plt.rcParams.update({'font.size': 11, 'figure.autolayout': True})
+
+# Actualización de paleta Seaborn usando colores del Brandbook Unilasallista
+brand_palette = ['#0a2647', '#ffcb05', '#4a52c7', '#4ea8dd', '#f17b67', '#62dedf']
+sns.set_theme(style="whitegrid")
+sns.set_palette(sns.color_palette(brand_palette))
+plt.rcParams.update({'font.size': 11, 'figure.autolayout': True, 'font.family': 'sans-serif'})
 
 # Función para cargar imágenes en Base64 y usarlas en HTML (Centrado perfecto)
 def get_base64_of_bin_file(bin_file):
@@ -48,7 +52,6 @@ def load_data():
     df['NIVEL'] = pd.to_numeric(df['NIVEL'], errors='coerce').fillna(0)
     df['ESTRATO_NUM'] = df['ESTRATO'].astype(str).str.extract(r'(\d+)').astype(float).fillna(0)
     df['CIUDADRESIDENCIA'] = df['CIUDADRESIDENCIA'].astype(str).str.upper().str.strip()
-    # Limpiar género por si acaso
     df['GENERO'] = df['GENERO'].astype(str).str.upper().str.strip()
     return df
 
@@ -56,73 +59,96 @@ try:
     df_crudo = load_data()
 
     # =============================================================================
-    # PANTALLA EMERGENTE DE BIENVENIDA (PRESENTACIÓN DE LUJO)
+    # PANTALLA EMERGENTE DE BIENVENIDA (IDENTIDAD DE MARCA OFICIAL)
     # =============================================================================
     if not st.session_state['app_iniciada']:
         
-        # Obtener logos en base64 para HTML
         logo_uni = get_base64_of_bin_file("logoUnilasalle.png")
         logo_est = get_base64_of_bin_file("est.png")
         
-        # HTML y CSS para una pantalla de inicio centrada y elegante
+        # Aplicación estricta del Brandbook 2026 (Montserrat + Colores HEX)
         st.markdown(f"""
         <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,700;0,800;1,700&display=swap');
+        
         .welcome-container {{
+            font-family: 'Montserrat', sans-serif;
             background-color: #ffffff;
             border-radius: 15px;
-            padding: 40px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 50px 40px;
+            box-shadow: 0 10px 30px rgba(10,38,71,0.1);
             text-align: center;
-            border-top: 8px solid #005A9C;
+            border-top: 8px solid #0a2647; /* Azul Principal */
+            border-bottom: 8px solid #ffcb05; /* Amarillo Principal */
             margin-bottom: 30px;
         }}
         .logos-wrapper {{
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 40px;
-            margin-bottom: 20px;
+            gap: 50px;
+            margin-bottom: 30px;
         }}
         .title-main {{
-            color: #005A9C;
-            font-size: 32px;
+            color: #0a2647; 
+            font-size: 34px;
             font-weight: 800;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
         }}
         .subtitle-main {{
-            color: #E2A829; /* Dorado Lasallista */
-            font-size: 20px;
-            font-weight: 600;
+            color: #4a52c7; /* Morado Institucional */
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+        }}
+        .brand-quote {{
+            font-style: italic;
+            color: #0a2647;
+            font-weight: 700;
+            font-size: 24px;
+            margin-top: 15px;
             margin-bottom: 25px;
         }}
         .text-body {{
-            color: #444;
-            font-size: 16px;
-            line-height: 1.6;
+            color: #606060; /* Gris de lectura */
+            font-size: 18px;
+            line-height: 1.7;
+            font-weight: 500;
             margin-bottom: 30px;
-            max-width: 800px;
+            max-width: 850px;
             margin-left: auto;
             margin-right: auto;
+        }}
+        .highlight {{
+            color: #4a52c7;
+            font-weight: 700;
         }}
         </style>
         
         <div class="welcome-container">
             <div class="logos-wrapper">
-                <img src="data:image/png;base64,{logo_uni}" width="200" alt="Logo Unilasallista">
-                <img src="data:image/png;base64,{logo_est}" width="150" alt="Logo Estudiantes">
+                <img src="data:image/png;base64,{logo_uni}" width="280" alt="Logo Unilasallista">
+                <img src="data:image/png;base64,{logo_est}" width="160" alt="Logo Estudiantes">
             </div>
-            <div class="title-main">Sistema Integral de Proyección y Recuperación Estudiantil</div>
-            <div class="subtitle-main">Vicerrectoría Financiera | Corporación Universitaria Lasallista</div>
+            <div class="title-main">Inteligencia Analítica y Retención</div>
+            <div class="subtitle-main">VICERRECTORÍA FINANCIERA | CORPORACIÓN UNIVERSITARIA LASALLISTA</div>
             
+            <div class="brand-quote">
+                "Un lugar que te abraza y a la vez te impulsa."
+            </div>
+
             <div class="text-body">
                 Bienvenido a la plataforma de Inteligencia de Negocios enfocada en la viabilidad financiera y la retención académica.
-                Este software procesa miles de transacciones académicas históricas para transformarlas en un <b>embudo de recuperación comercial</b>,
-                proyectando el comportamiento orgánico y perfilando el riesgo de deserción.
+                Este software procesa miles de transacciones históricas para transformarlas en un <span class="highlight">embudo de recuperación comercial</span>,
+                proyectando el comportamiento orgánico y perfilando el riesgo de deserción con el propósito de acompañar a cada estudiante en su proceso.
             </div>
         </div>
         """, unsafe_allow_html=True)
         
-        st.info(f"💾 **Estado de la Base de Datos Creada:** Se han detectado **{len(df_crudo):,} registros transaccionales** listos para ser procesados matemáticamente.")
+        st.info(f"💾 **Estado de la Base de Datos:** Se han detectado **{len(df_crudo):,} registros transaccionales** listos para ser procesados matemáticamente.")
         
         st.markdown("<br>", unsafe_allow_html=True)
         col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 1])
@@ -163,7 +189,6 @@ try:
         est_sel = st.sidebar.selectbox("Estrato Socioeconómico", ["Todos"] + list(sorted(df_crudo['ESTRATO'].dropna().unique())))
         cohorte_sel = st.sidebar.selectbox("Cohorte (Año de Ingreso)", ["Todos"] + list(sorted(df_crudo['AÑOCOHORTE'].dropna().unique(), reverse=True)))
         
-        # NUEVO FILTRO: Género
         generos_disp = sorted(df_crudo['GENERO'].dropna().unique())
         gen_sel = st.sidebar.selectbox("Género", ["Todos"] + list(generos_disp))
 
@@ -193,7 +218,7 @@ try:
         df_candidatos_finales = df_univ[(df_univ['NIVEL'] >= 5) & (df_univ['Target_Gestión'] == 'Candidato a Reingresar')]
 
         # -----------------------------------------------------------------------------
-        # PESTAÑAS DEL SISTEMA (AHORA 6 PESTAÑAS)
+        # PESTAÑAS DEL SISTEMA 
         # -----------------------------------------------------------------------------
         tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
             "📞 Gestión Operativa", 
@@ -222,12 +247,11 @@ try:
             )
 
         # =============================================================================
-        # 2. ANÁLISIS DESCRIPTIVO (NUEVOS GRÁFICOS AÑADIDOS)
+        # 2. ANÁLISIS DESCRIPTIVO
         # =============================================================================
         with tab2:
             st.header("Radiografía de Tendencias y Población")
             
-            # Fila 1: KPIs
             k1, k2, k3, k4 = st.columns(4)
             k1.metric("Volumen Transaccional Total", f"{len(df_base):,}")
             k2.metric("Matrículas Nuevas Históricas", f"{len(df_base[df_base['¿ESNUEVO'] == 'NUEVO']):,}")
@@ -238,7 +262,8 @@ try:
             st.markdown("### 1. Evolución Histórica de Ingresos (Nuevos vs Continuidad)")
             df_trend = df_base.groupby(['PeriodoAcadémico', '¿ESNUEVO']).size().reset_index(name='Cantidad')
             fig_lin = px.line(df_trend, x='PeriodoAcadémico', y='Cantidad', color='¿ESNUEVO', markers=True,
-                              title="Tendencia Longitudinal de Matrícula por Semestre", template="plotly_white")
+                              title="Tendencia Longitudinal de Matrícula por Semestre", template="plotly_white",
+                              color_discrete_sequence=['#0a2647', '#ffcb05'])
             st.plotly_chart(fig_lin, use_container_width=True)
             
             st.markdown("---")
@@ -254,8 +279,8 @@ try:
 
             with colB:
                 fig_box, ax_box = plt.subplots(figsize=(8, 4.5))
-                sns.boxplot(data=df_base, x='ESTRATO', y='NIVEL', hue='GENERO', ax=ax_box, palette="pastel")
-                ax_box.set_title("Distribución de Niveles por Estrato y Género", fontweight='bold')
+                sns.boxplot(data=df_base, x='ESTRATO', y='NIVEL', hue='GENERO', ax=ax_box)
+                ax_box.set_title("Distribución de Niveles por Estrato y Género", fontweight='bold', color='#0a2647')
                 ax_box.legend(loc='lower right', fontsize='small')
                 st.pyplot(fig_box)
 
@@ -264,7 +289,6 @@ try:
             colC, colD = st.columns(2)
             
             with colC:
-                # Nuevo Gráfico Radar (Spider Chart)
                 df_radar = df_base.groupby('ESTRATO').size().reset_index(name='Cantidad')
                 if not df_radar.empty:
                     fig_radar = go.Figure(data=go.Scatterpolar(
@@ -272,7 +296,7 @@ try:
                       theta=df_radar['ESTRATO'],
                       fill='toself',
                       name='Población',
-                      marker_color='#005A9C'
+                      marker_color='#4a52c7'
                     ))
                     fig_radar.update_layout(
                       polar=dict(radialaxis=dict(visible=True)),
@@ -331,12 +355,12 @@ try:
             
             fig_sim, ax_b = plt.subplots(figsize=(12, 5))
             ax_l = ax_b.twinx()
-            sns.barplot(data=df_proy_sim, x='Periodo', y='Reingresos', ax=ax_b, color='#4C72B0', label="Reingresos (Caja Financiera)")
-            sns.lineplot(data=df_proy_sim, x='Periodo', y='Inventario_Restante', ax=ax_l, color='#C44E52', marker='o', lw=3, label="Base de Contactos Pendientes")
+            sns.barplot(data=df_proy_sim, x='Periodo', y='Reingresos', ax=ax_b, color='#0a2647', label="Reingresos (Caja Financiera)")
+            sns.lineplot(data=df_proy_sim, x='Periodo', y='Inventario_Restante', ax=ax_l, color='#ffcb05', marker='o', lw=3, label="Base de Contactos Pendientes")
             
             ax_b.set_title("Curva de Decaimiento: Extracción de Valor de la Base de Datos", fontweight='bold')
             ax_b.set_ylabel("Nuevos Reingresados (Cantidad)")
-            ax_l.set_ylabel("Teléfonos por contactar", color='#C44E52')
+            ax_l.set_ylabel("Teléfonos por contactar", color='#ffcb05')
             ax_b.tick_params(axis='x', rotation=45)
             
             lines1, labels1 = ax_b.get_legend_handles_labels()
@@ -350,7 +374,7 @@ try:
         # =============================================================================
         with tab4:
             st.header("Algoritmos Predictivos de Matriculación (Scikit-Learn)")
-            st.markdown("Si la universidad no hace ninguna campaña y se deja llevar por la **tendencia orgánica y la inercia del mercado**, esto es lo que la Inteligencia Artificial prevé que sucederá:")
+            st.markdown("Si la universidad no hace ninguna campaña y se deja llevar por la tendencia orgánica, esto es lo que la Inteligencia Artificial prevé que sucederá:")
             
             ia1, ia2, ia3 = st.tabs(["📉 1. Modelo de Reingresos", "🚀 2. Modelo de NUEVOS ESTUDIANTES", "🌳 3. Riesgo Académico"])
             
@@ -371,8 +395,8 @@ try:
                     preds_r = [max(0, p) for p in modelo_r.predict(T_fut)]
                     
                     fig_r, ax_r = plt.subplots(figsize=(10, 4))
-                    sns.regplot(data=tendencia_reing, x='Time', y='Cantidad', ax=ax_r, color="#2CA02C", label="Historia (Con margen estadístico)")
-                    ax_r.plot(T_fut['Time'], preds_r, color="#FF7F0E", marker="X", linestyle="--", lw=2, label="Proyección Futura (IA)")
+                    sns.regplot(data=tendencia_reing, x='Time', y='Cantidad', ax=ax_r, color="#4ea8dd", label="Historia (Con margen estadístico)")
+                    ax_r.plot(T_fut['Time'], preds_r, color="#4a52c7", marker="X", linestyle="--", lw=2, label="Proyección Futura (IA)")
                     ax_r.set_xticks(range(1, len(tendencia_reing) + len(per_futuros) + 1))
                     ax_r.set_xticklabels(list(tendencia_reing['PeriodoAcadémico']) + per_futuros, rotation=45)
                     ax_r.legend()
@@ -395,8 +419,8 @@ try:
                     k2.success("El algoritmo detecta la inercia del volumen histórico de captación e intuye matemáticamente las futuras cuotas de mercado.")
                     
                     fig_n, ax_n = plt.subplots(figsize=(10, 4))
-                    sns.regplot(data=tendencia_nuevos, x='Time', y='Cantidad', ax=ax_n, color="#1F77B4", label="Historia Real")
-                    ax_n.plot(T_fut_n['Time'], preds_n, color="#D62728", marker="o", linestyle="--", lw=2, label="Previsión Futura (IA)")
+                    sns.regplot(data=tendencia_nuevos, x='Time', y='Cantidad', ax=ax_n, color="#0a2647", label="Historia Real")
+                    ax_n.plot(T_fut_n['Time'], preds_n, color="#ffcb05", marker="o", linestyle="--", lw=2, label="Previsión Futura (IA)")
                     ax_n.set_xticks(range(1, len(tendencia_nuevos) + len(per_futuros) + 1))
                     ax_n.set_xticklabels(list(tendencia_nuevos['PeriodoAcadémico']) + per_futuros, rotation=45)
                     ax_n.set_title("Proyección Regresiva: Alumnos Nuevos", fontweight='bold')
@@ -426,19 +450,18 @@ try:
         with tab5:
             st.header("🔗 Módulo Externo de Integración: Proyecto IA")
             st.markdown("""
-            Esta pestaña ha sido diseñada arquitectónicamente como un **puerto de enlace (Iframe / Placeholder)** para albergar tu desarrollo independiente publicado en GitHub (`https://github.com/alejoruizr/Proyecto_IA.git`).
+            Esta pestaña ha sido diseñada arquitectónicamente como un **puerto de enlace (Iframe / Placeholder)** para albergar el desarrollo independiente publicado en GitHub (`https://github.com/alejoruizr/Proyecto_IA.git`).
             """)
             
             st.info("""
             **Pasos para el Administrador del Sistema:**
-            1. Si tu aplicación de GitHub está desplegada en la web (ej. Streamlit Cloud, Heroku, etc.), puedes embeberla aquí reemplazando el enlace en el código `st.components.v1.iframe("TU_ENLACE", height=800)`.
-            2. Alternativamente, puedes clonar las carpetas de tu repositorio en la misma raíz de este proyecto y ejecutar `import nombre_de_tu_app` para que corra de manera nativa dentro de este contenedor.
+            1. Si la aplicación de GitHub está desplegada en la web (ej. Streamlit Cloud), puedes embeberla aquí usando `st.components.v1.iframe("URL", height=800)`.
+            2. Alternativamente, puedes clonar las carpetas del repositorio en la misma raíz de este proyecto y ejecutar los modelos de forma nativa.
             """)
             
-            # Simulador de integración
             st.markdown("""
-            <div style="text-align: center; border: 2px dashed #005A9C; border-radius: 10px; padding: 50px; background-color: #f8f9fa;">
-                <h3 style="color: #005A9C;">🔌 ESPACIO RESERVADO PARA INTEGRACIÓN GITHUB</h3>
+            <div style="text-align: center; border: 2px dashed #0a2647; border-radius: 10px; padding: 50px; background-color: #f8f9fa;">
+                <h3 style="color: #0a2647;">🔌 ESPACIO RESERVADO PARA INTEGRACIÓN GITHUB</h3>
                 <p><strong>Repositorio:</strong> <code>alejoruizr/Proyecto_IA</code></p>
                 <p><em>(El código o dashboard externo se renderizará automáticamente aquí una vez se configure la URL de despliegue).</em></p>
             </div>
@@ -454,7 +477,7 @@ try:
             
             with doc1:
                 st.markdown("### 1. Justificación y Fundamentación del Proyecto")
-                st.write("La deserción universitaria representa un impacto grave a los flujos de caja y la rentabilidad de la Corporación Universitaria Lasallista. Este proyecto transforma la postura reactiva frente a los desertores en una postura *predictiva y activa*.")
+                st.write("La deserción universitaria representa un impacto grave a los flujos de caja y la rentabilidad de la Corporación Universitaria Lasallista. Este proyecto transforma la postura reactiva frente a los desertores en una postura predictiva y activa, aplicando los lineamientos del Arquetipo de Marca Mago-Ciudadano.")
             with doc2:
                 st.markdown("### 2. Tratamiento Ético y Unicidad Cronológica (ETL)")
                 st.write("El código integrado aplica un motor lógico ETL que agrupa la base por la llave primaria, ordena los tiempos cronológicamente y aplica el método de aislamiento de estado terminal. De manera innegociable, el sistema descarta los registros pasados y prioriza el estado actual absoluto del individuo.")
@@ -463,7 +486,7 @@ try:
                 st.write("El simulador financiero opera bajo una función matemática de **Desgaste Proporcional**. La Base Inicial (N) menos la cuota de recuperación proyectada (λ) demuestra crudamente cómo las campañas a largo plazo sobre una base estática sufren de rendimientos marginales decrecientes.")
             with doc4:
                 st.markdown("### 4. Sustentación de Algoritmos de Machine Learning")
-                st.write("Se empleó **Scikit-Learn (sklearn)** para dotar a la herramienta de capacidades autónomas, incluyendo Regresión Lineal de Mínimos Cuadrados Ordinarios (OLS) para proyectar la curva del mercado y Árbol de Clasificación Gini para perfilar la taxonomía del riesgo.")
+                st.write("Se empleó **Scikit-Learn (sklearn)** para dotar a la herramienta de capacidades autónomas, incluyendo Regresión Lineal de Mínimos Cuadrados Ordinarios (OLS) para proyectar la curva del mercado y Árbol de Clasificación Gini para perfilar la taxonomía del riesgo sociodemográfico.")
             with doc5:
                 st.markdown("### 5. Glosario Oficial y Metadatos del Sistema")
                 st.write("""
@@ -476,10 +499,9 @@ try:
         # =============================================================================
         st.markdown("---")
         st.markdown("""
-            <div style="text-align: center; color: #444; font-size: 15px; padding: 25px 0; background-color: #f1f3f4; border-radius: 10px;">
+            <div style="text-align: center; color: #606060; font-size: 15px; padding: 25px 0; background-color: #f1f3f4; border-radius: 10px;">
                 <strong>© 2026-1 | Corporación Universitaria Lasallista</strong><br><br>
-                Desarrollo e Insumo de Investigación aportado por la <strong>Facultad de Ingeniería</strong> bajo la dirección general de <strong>Feibert Alirio Guzmán Pérez</strong>.<br>
-                Apoyo y Asistencia Técnica de Integración Analítica: <strong>Jonathan Berthen Castro</strong>.<br><br>
+                Desarrollo e Insumo de Investigación aportado por la <strong>Facultad de Ingeniería</strong> bajo la dirección general de <strong>Feibert Alirio Guzmán Pérez</strong>.<br><br>
                 <i>Este tablero interactivo predictivo y aplicativo soporta tecnológica y científicamente al proyecto adscrito al grupo de investigación <strong>G-3IN</strong>.</i>
             </div>
         """, unsafe_allow_html=True)
