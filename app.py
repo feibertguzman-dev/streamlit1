@@ -78,13 +78,12 @@ try:
     if est_sel != "Todos": df_base = df_base[df_base['ESTRATO'] == est_sel]
     if cohorte_sel != "Todos": df_base = df_base[df_base['AÑOCOHORTE'] == cohorte_sel]
 
-    st.success(f"📌 **Datos Activos:** Mostrando registros correspondientes a **{df_base['DOCUMENTOIDENTIDAD'].nunique():,}** estudiantes únicos bajo los filtros seleccionados.")
-
     # -----------------------------------------------------------------------------
-    # PESTAÑAS DEL SISTEMA
+    # PESTAÑAS DEL SISTEMA (AHORA SON 6)
     # -----------------------------------------------------------------------------
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "📞 Gestión y Contacto (Leads)", 
+    tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "🏠 Inicio",
+        "📞 Gestión y Contacto", 
         "📊 Análisis Descriptivo & Mapa", 
         "⚙️ Simulador de Escenarios", 
         "🧠 Modelos Predictivos (IA)", 
@@ -103,18 +102,52 @@ try:
         return 'No Aplica'
         
     estado_calc = df_sorted.groupby('DOCUMENTOIDENTIDAD')['ESTADO'].apply(clasificar_target).reset_index(name='Target_Gestión')
-    # Aislamiento del estado terminal absoluto (keep='last')
     df_univ = df_sorted.drop_duplicates('DOCUMENTOIDENTIDAD', keep='last').merge(estado_calc, on='DOCUMENTOIDENTIDAD')
-    
-    # LA BASE DE ORO: Prospectos decantados
     df_candidatos_finales = df_univ[(df_univ['NIVEL'] >= 5) & (df_univ['Target_Gestión'] == 'Candidato a Reingresar')]
+
+    # =============================================================================
+    # PESTAÑA 0: INICIO / BIENVENIDA
+    # =============================================================================
+    with tab0:
+        st.markdown("## Bienvenido al Sistema de Inteligencia Analítica de Reingresos")
+        st.write("Esta plataforma de Inteligencia de Negocios (BI) y Machine Learning ha sido diseñada para optimizar la toma de decisiones, la planeación presupuestal y la ejecución de campañas comerciales en la **Vicerrectoría Financiera**.")
+        
+        st.markdown("---")
+        # KPIs globales de la base de datos completa (sin filtros) para dar contexto del tamaño del proyecto
+        col_k1, col_k2, col_k3, col_k4 = st.columns(4)
+        col_k1.metric("Total Estudiantes Históricos", f"{df['DOCUMENTOIDENTIDAD'].nunique():,}")
+        col_k2.metric("Programas Analizados", f"{df['PROGRAMA'].nunique()}")
+        col_k3.metric("Facultades Integradas", f"{df['FACULTAD'].nunique()}")
+        col_k4.metric("Cohortes Mapeadas", f"{df['AÑOCOHORTE'].nunique()}")
+        
+        st.markdown("---")
+        st.markdown("### 🗺️ Guía de Navegación Rápida")
+        st.markdown("""
+        Explora las pestañas superiores para acceder a los diferentes módulos del sistema:
+        
+        * **📞 Gestión y Contacto:** Extrae listados depurados y sin duplicados de los estudiantes viables para llamar hoy mismo.
+        * **📊 Análisis Descriptivo & Mapa:** Visualiza la radiografía sociodemográfica y el mapa de calor territorial de nuestra población.
+        * **⚙️ Simulador de Escenarios:** Juega con tasas de éxito comercial y proyecta el retorno financiero para los próximos semestres.
+        * **🧠 Modelos Predictivos (IA):** Observa qué dice la Inteligencia Artificial sobre la inercia de reingresos y el perfil de deserción.
+        * **📖 Ayuda y Documentación:** Consulta la metodología, las reglas de negocio y los procesos de calidad de datos del sistema.
+        """)
+        
+        st.markdown("---")
+        st.markdown("""
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 5px solid #005A9C;">
+            <h4 style="color: #005A9C; margin-top: 0;">Respaldo Tecnológico e Investigativo</h4>
+            <p style="font-size: 15px; color: #333;">Este tablero interactivo es un desarrollo tecnológico avanzado creado en la <strong>Facultad de Ingeniería</strong> bajo la dirección general de <strong>Feibert Alirio Guzmán Pérez</strong>.<br>
+            El sistema funge como insumo y soporte directo al proyecto de investigación adscrito al grupo <strong>G-3IN</strong>, integrando técnicas de minería de datos, modelos estadísticos y gamificación para el análisis empresarial.</p>
+        </div>
+        """, unsafe_allow_html=True)
 
     # =============================================================================
     # PESTAÑA 1: TABLA OPERATIVA DE CONTACTO
     # =============================================================================
     with tab1:
         st.header("Directorio Operativo de Contacto")
-        st.markdown(f"**Estudiantes Objetivo:** {len(df_candidatos_finales)} candidatos encontrados (Retirados/Aplazados desde Nivel 5).")
+        st.success(f"📌 **Filtro Activo:** Mostrando base de datos para **{df_base['DOCUMENTOIDENTIDAD'].nunique():,}** estudiantes (Según panel izquierdo).")
+        st.markdown(f"**Estudiantes Objetivo:** {len(df_candidatos_finales)} prospectos decantados (Retirados/Aplazados desde Nivel 5 listos para llamar).")
         
         with st.expander("💡 ¿Cómo usar esta tabla de gestión?"):
             st.write("""
@@ -270,32 +303,19 @@ try:
         with st.expander("⚖️ Principio de Unicidad Cronológica (Resolución de Conflictos ETL)"):
             st.markdown("""
             **El Reto Transaccional:**
-            En las bases de datos institucionales, un mismo individuo genera múltiples registros a lo largo del tiempo. Un estudiante puede aparecer como "Matriculado" en 2021, "Retirado" en 2022, "Reingreso" en 2023, y volver a figurar como "Retirado" en 2025.
+            En las bases de datos institucionales, un mismo individuo genera múltiples registros a lo largo del tiempo.
             
             **La Solución Implementada:**
-            El sistema ejecuta un procedimiento de Extracción, Transformación y Carga (ETL) en segundo plano que garantiza la integridad transaccional mediante las siguientes reglas:
-            
-            1. **Aislamiento Terminal:** Agrupa el historial por `DOCUMENTOIDENTIDAD`, ordena los eventos cronológicamente y aísla de manera exclusiva el registro correspondiente a la fecha máxima absoluta (estado terminal).
+            El sistema ejecuta un procedimiento de Extracción, Transformación y Carga (ETL) en segundo plano que garantiza la integridad transaccional:
+            1. **Aislamiento Terminal:** Aísla de manera exclusiva el registro correspondiente a la fecha máxima absoluta (estado terminal).
             2. **Anulación de Eventos Históricos:** Si un estudiante se había retirado, pero posteriormente reingresó, el modelo predictivo asume el reingreso como su estado definitivo y **anula la deserción previa**.
-            3. **Garantía de Integridad:** Este proceso transforma un historial longitudinal en una fotografía transversal exacta. Evita la duplicación de identidades, asegura recuentos impecables para Power BI, y garantiza que el equipo de admisiones no contacte a estudiantes que ya se encuentran activos.
             """)
             
         with st.expander("🎯 Objetivo Estratégico"):
             st.write("Plataforma diseñada para la Vicerrectoría Financiera. Convierte el historial plano de deserciones en un embudo interactivo para planear, presupuestar y proyectar retornos de inversión en campañas de readmisión.")
-            
-        with st.expander("🧠 Inteligencia Artificial y Calidad de Datos (Data Quality)"):
-            st.write("""
-            El modelo rechaza generar predicciones engañosas. Si el historial de "casos de éxito" (reingresos) es ínfimo frente a los "casos de fracaso" (retiros), la IA se ajusta para encontrar patrones descriptivos confiables, tales como:
-            * **Regresión con Varianza:** La zona sombreada alrededor de la línea verde representa el intervalo de confianza (margen de error) calculado sobre el comportamiento histórico.
-            * **Árboles de Perfilamiento:** Divide matemáticamente a la población según estrato y nivel para descubrir dónde se genera la mayor fricción en la permanencia académica.
-            """)
-
-except Exception as e:
-    st.error("Error crítico en la ejecución del Dashboard. Verifica los datos de entrada.")
-    st.exception(e)
 
     # =============================================================================
-    # CRÉDITOS Y PROPIEDAD INTELECTUAL (FOOTER)
+    # CRÉDITOS Y PROPIEDAD INTELECTUAL (FOOTER GLOBAL)
     # =============================================================================
     st.markdown("---")
     st.markdown("""
