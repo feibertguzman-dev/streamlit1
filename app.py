@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
 import plotly.graph_objects as go
-import base64
 from io import BytesIO
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeClassifier, plot_tree
@@ -35,7 +34,6 @@ st.set_page_config(page_title="Inteligencia de Reingresos - Unilasallista", layo
 brand_palette = ['#0a2647', '#ffcb05', '#4a52c7', '#4ea8dd', '#f17b67', '#62dedf']
 sns.set_theme(style="whitegrid")
 sns.set_palette(sns.color_palette(brand_palette))
-plt.rcParams.update({'font.size': 11, 'figure.autolayout': True, 'font.family': 'sans-serif'})
 
 if 'app_iniciada' not in st.session_state:
     st.session_state['app_iniciada'] = False
@@ -64,54 +62,54 @@ try:
     df_crudo = load_data()
 
     # =============================================================================
-    # PANTALLA DE BIENVENIDA (PRESENTACIÓN ESTRATÉGICA)
+    # PANTALLA DE BIENVENIDA (PRESENTACIÓN ESTRATÉGICA OPTIMIZADA)
     # =============================================================================
     if not st.session_state['app_iniciada']:
+        # Estilos para el texto de bienvenida
         st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
-.welcome-card {
-    font-family: 'Montserrat', sans-serif;
-    background-color: #ffffff;
-    border-radius: 20px;
-    padding: 60px 40px;
-    box-shadow: 0 15px 35px rgba(10,38,71,0.08);
-    text-align: center;
-    max-width: 900px;
-    margin: 0 auto;
-    border-top: 6px solid #0a2647;
-}
-.main-title { color: #0a2647; font-size: 38px; font-weight: 800; margin-bottom: 10px; letter-spacing: -1px; }
-.sub-title { color: #4a52c7; font-size: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 40px; }
-.brand-quote { color: #0a2647; font-size: 26px; font-weight: 400; font-style: italic; margin-bottom: 30px; }
-.hero-text { color: #444444; font-size: 19px; line-height: 1.8; margin-bottom: 40px; }
-.stButton>button { background-color: #0a2647 !important; color: white !important; border-radius: 50px !important; padding: 10px 40px !important; font-weight: 600 !important; border: none !important; }
-</style>
-""", unsafe_allow_html=True)
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
+        .welcome-card {
+            font-family: 'Montserrat', sans-serif;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .main-title { color: #0a2647; font-size: 42px; font-weight: 800; margin-top: 20px; }
+        .sub-title { color: #4a52c7; font-size: 18px; font-weight: 600; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 30px; }
+        .brand-quote { color: #0a2647; font-size: 28px; font-weight: 400; font-style: italic; margin-bottom: 25px; }
+        .hero-text { color: #444444; font-size: 20px; line-height: 1.8; margin-bottom: 40px; }
+        </style>
+        """, unsafe_allow_html=True)
+
         st.markdown("<br><br>", unsafe_allow_html=True)
         
-        c1, c2, c3 = st.columns([1, 1, 1])
-        with c2:
-            try: st.image("logoUnilasalle.png", use_column_width=True)
-            except: pass
+        # Logo único y centrado usando el comando estándar de Streamlit
+        col_img1, col_img2, col_img3 = st.columns([1, 1, 1])
+        with col_img2:
+            try:
+                st.image("logoUnilasalle.png", use_container_width=True)
+            except:
+                st.warning("Logo no encontrado. Verifique el archivo logoUnilasalle.png")
         
         st.markdown(f"""
-<div class="welcome-card">
-    <div class="sub-title">Vicerrectoría Financiera</div>
-    <div class="main-title">Estrategia Analítica de Retención</div>
-    <div class="brand-quote">"Un lugar que te abraza y a la vez te impulsa"</div>
-    <div class="hero-text">
-        Bienvenido a la plataforma de <b>Inteligencia de Datos</b> Unilasallista. <br>
-        Esta herramienta ha sido diseñada para transformar la información histórica en decisiones estratégicas, 
-        permitiéndonos acompañar con precisión el camino de nuestros estudiantes y fortalecer el 
-        propósito transformador de nuestra institución.
-    </div>
-</div>
-""", unsafe_allow_html=True)
+        <div class="welcome-card">
+            <div class="sub-title">Vicerrectoría Financiera</div>
+            <div class="main-title">Estrategia Analítica de Retención</div>
+            <div class="brand-quote">"Un lugar que te abraza y a la vez te impulsa"</div>
+            <div class="hero-text">
+                Bienvenido a la plataforma de <b>Inteligencia de Datos</b> Unilasallista. <br>
+                Esta herramienta ha sido diseñada para transformar la información histórica en decisiones estratégicas, 
+                permitiéndonos acompañar con precisión el camino de nuestros estudiantes y fortalecer el 
+                propósito transformador de nuestra institución.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
         
-        st.markdown("<br>", unsafe_allow_html=True)
+        # Botón de acceso
         col_b1, col_b2, col_b3 = st.columns([1, 1, 1])
-        if col_b2.button("INGRESAR AL PANEL ESTRATÉGICO", use_container_width=True):
+        if col_b2.button("INGRESAR AL PANEL ESTRATÉGICO", use_container_width=True, type="primary"):
             st.session_state['app_iniciada'] = True
             st.rerun()
             
@@ -119,21 +117,16 @@ try:
     # DASHBOARD PRINCIPAL
     # =============================================================================
     else:
-        col_logo, col_title = st.columns([1, 4])
-        with col_logo:
+        col_logo_dash, col_title_dash = st.columns([1, 4])
+        with col_logo_dash:
             try: st.image("logoUnilasalle.png", width=160)
             except: pass
-        with col_title:
+        with col_title_dash:
             st.title("Dashboard Predictivo de Reingresos")
             st.markdown("#### Corporación Universitaria Lasallista | Vicerrectoría Financiera")
         st.markdown("---")
 
-        # -----------------------------------------------------------------------------
-        # PANEL IZQUIERDO: FILTROS INTEGRADOS
-        # -----------------------------------------------------------------------------
-        try: st.sidebar.image("est.png", use_column_width=True)
-        except: pass
-        
+        # PANEL IZQUIERDO: FILTROS
         st.sidebar.markdown("### 🔍 Buscador")
         busqueda_txt = st.sidebar.text_input("Ingresar Documento o Nombre", "")
         
@@ -146,7 +139,6 @@ try:
         cohorte_sel = st.sidebar.selectbox("Cohorte (Año de Ingreso)", ["Todos"] + list(sorted(df_crudo['AÑOCOHORTE'].dropna().unique(), reverse=True)))
         gen_sel = st.sidebar.selectbox("Género", ["Todos"] + list(sorted(df_crudo['GENERO'].dropna().unique())))
 
-        # Lógica de Aplicación de Filtros
         df_base = df_crudo.copy()
         if busqueda_txt:
             mask = df_base['DOCUMENTOIDENTIDAD'].astype(str).str.contains(busqueda_txt) | df_base['NOMBRE'].str.contains(busqueda_txt, case=False, na=False)
@@ -171,15 +163,13 @@ try:
         df_candidatos_finales = df_univ[(df_univ['NIVEL'] >= 5) & (df_univ['Target_Gestión'] == 'Candidato a Reingresar')]
         estudiantes_activos = len(df_univ[df_univ['ESTADO'] == 'Estudiante Matriculado'])
 
-        # NAVEGACIÓN
+        # PESTAÑAS
         tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
             "📊 Radiografía Descriptiva", "📞 Gestión Operativa", "⚙️ Simulador Comercial", 
             "🧠 Predicciones Básicas", "🔗 Módulo Híbrido IA", "📖 Biblioteca Documental"
         ])
         
-        # =============================================================================
-        # 1. RADIOGRAFÍA DESCRIPTIVA
-        # =============================================================================
+        # 1. RADIOGRAFÍA
         with tab1:
             st.header("Radiografía de Tendencias y Población")
             k1, k2, k3, k4 = st.columns(4)
@@ -202,19 +192,15 @@ try:
                 heat_data = df_base.groupby(['NIVEL', 'ESTADO']).size().reset_index(name='Volumen')
                 fig_heat = px.density_heatmap(heat_data, x='NIVEL', y='ESTADO', z='Volumen', color_continuous_scale='Blues', text_auto=True, title="Mapa de Calor: Zonas de Fricción", template="plotly_white")
                 st.plotly_chart(fig_heat, use_container_width=True)
-                with st.expander("💡 ¿Cómo interpretar el Mapa de Calor?"):
-                    st.write("Las zonas oscuras en la fila 'Retirado' señalan los niveles críticos de deserción.")
             with colB:
                 fig_box, ax_box = plt.subplots(figsize=(8, 4.5))
                 sns.boxplot(data=df_base, x='ESTRATO', y='NIVEL', hue='GENERO', ax=ax_box)
                 ax_box.set_title("Distribución Académica por Estrato", fontweight='bold', color='#0a2647')
                 st.pyplot(fig_box)
-                with st.expander("💡 ¿Cómo interpretar el Diagrama de Cajas?"):
-                    st.write("Visualice la precocidad de la deserción según el perfil socioeconómico.")
 
             st.markdown("---")
             st.markdown("### 2. Ubicación Territorial")
-            coords = { 'MEDELLIN':(6.2442,-75.5812), 'CALDAS':(6.0911,-75.6383), 'ENVIGADO':(6.1759,-75.5917), 'BELLO':(6.3373,-75.5579), 'LA ESTRELLA':(6.1576,-75.6443), 'ITAGUI':(6.1718,-75.6095), 'SABANETA':(6.1515,-75.6166), 'AMAGA':(6.0385,-75.7034), 'BOGOTA':(4.7110,-74.0721) }
+            coords = { 'MEDELLIN':(6.2442,-75.5812), 'CALDAS':(6.0911,-75.6383), 'ENVIGADO':(6.1759,-75.5917), 'BELLO':(6.3373,-75.5579), 'LA ESTRELLA':(6.1576,-75.6443), 'ITAGUI':(6.1718,-75.6095), 'SABANETA':(6.1515,-75.6166), 'AMAGA':(6.0385,-75.7034), 'COPACABANA':(6.3463,-75.5089), 'BOGOTA':(4.7110,-74.0721) }
             df_geo = df_base.groupby('CIUDADRESIDENCIA').size().reset_index(name='Estudiantes')
             df_geo['Lat'] = df_geo['CIUDADRESIDENCIA'].map(lambda x: coords.get(x, (None, None))[0])
             df_geo['Lon'] = df_geo['CIUDADRESIDENCIA'].map(lambda x: coords.get(x, (None, None))[1])
@@ -223,9 +209,7 @@ try:
                 fig_map = px.scatter_mapbox(df_geo, lat="Lat", lon="Lon", size="Estudiantes", color="Estudiantes", hover_name="CIUDADRESIDENCIA", color_continuous_scale="Reds", size_max=45, zoom=9, mapbox_style="carto-positron")
                 st.plotly_chart(fig_map, use_container_width=True)
 
-        # =============================================================================
         # 2. GESTIÓN OPERATIVA
-        # =============================================================================
         with tab2:
             st.header("Directorio Depurado para Contacto")
             st.info(f"Se han identificado **{len(df_candidatos_finales)} prospectos** que cumplen con los criterios de viabilidad.")
@@ -233,9 +217,7 @@ try:
             st.dataframe(df_candidatos_finales[cols_gestion], use_container_width=True, height=450)
             st.download_button(label="📥 Exportar Base para Call Center (.CSV)", data=df_candidatos_finales[cols_gestion].to_csv(index=False, sep=";").encode('utf-8-sig'), file_name="Prospectos_Unilasallista.csv", mime="text/csv")
 
-        # =============================================================================
-        # 3. SIMULADOR COMERCIAL
-        # =============================================================================
+        # 3. SIMULADOR
         with tab3:
             st.header("Motor de Proyección Financiera")
             base_ini = len(df_candidatos_finales)
@@ -260,49 +242,30 @@ try:
             ax_l = ax_b.twinx()
             sns.barplot(data=df_proy_sim, x='Periodo', y='Reingresos', ax=ax_b, color='#0a2647', label="Reingresos")
             sns.lineplot(data=df_proy_sim, x='Periodo', y='Inventario', ax=ax_l, color='#ffcb05', marker='o', lw=3, label="Base Pendiente")
-            ax_b.tick_params(axis='x', rotation=45)
             st.pyplot(fig_sim)
-            with st.expander("💡 ¿Cómo interpretar el Simulador?"):
-                st.write("La gráfica ilustra la extracción de valor sobre una base estática; a mayor éxito inicial, menor inventario restante.")
 
-        # =============================================================================
-        # 4. PREDICCIONES IA BÁSICAS
-        # =============================================================================
+        # 4. PREDICCIONES
         with tab4:
-            st.header("Modelos de Inercia Orgánica (Scikit-Learn)")
-            ia1, ia2 = st.tabs(["📉 1. Reingresos Inerciales", "🌳 2. Riesgo Académico"])
+            st.header("Modelos de Inercia Orgánica")
+            ia1, ia2 = st.tabs(["📉 Reingresos Inerciales", "🌳 Riesgo Académico"])
             with ia1:
                 tendencia_reing = df_base[df_base['ESTADO'] == 'Estudiante de Reingreso'].groupby('PeriodoAcadémico').size().reset_index(name='Cantidad')
                 if len(tendencia_reing) > 2:
                     tendencia_reing['Time'] = range(1, len(tendencia_reing) + 1)
                     modelo_r = LinearRegression().fit(tendencia_reing[['Time']], tendencia_reing['Cantidad'])
-                    T_fut = pd.DataFrame({'Time': range(tendencia_reing['Time'].max() + 1, tendencia_reing['Time'].max() + 1 + len(per_futuros))})
+                    T_fut = pd.DataFrame({'Time': range(tendencia_reing['Time'].max() + 1, tendencia_reing['Time'].max() + 1 + 12)})
                     preds_r = [max(0, p) for p in modelo_r.predict(T_fut)]
                     st.metric("Total Reingresos Proyectados (IA)", f"{int(sum(preds_r))}")
                     fig_r, ax_r = plt.subplots(figsize=(10, 4))
                     sns.regplot(data=tendencia_reing, x='Time', y='Cantidad', ax=ax_r, color="#4ea8dd")
                     ax_r.plot(T_fut['Time'], preds_r, color="#4a52c7", marker="X", linestyle="--")
-                    ax_r.set_xticks(range(1, len(tendencia_reing) + len(per_futuros) + 1))
-                    ax_r.set_xticklabels(list(tendencia_reing['PeriodoAcadémico']) + per_futuros, rotation=45)
                     st.pyplot(fig_r)
-            with ia2:
-                df_tree = df_univ[df_univ['ESTADO'].isin(['Estudiante Retirado', 'Canceló Periodo'])].copy()
-                if len(df_tree) > 10:
-                    df_tree['Retiro_Tardío'] = np.where(df_tree['NIVEL'] >= 5, 1, 0)
-                    X = df_tree[['ESTRATO_NUM']].fillna(0)
-                    clf = DecisionTreeClassifier(max_depth=2, class_weight='balanced', random_state=42)
-                    clf.fit(X, df_tree['Retiro_Tardío'])
-                    fig_tree, ax_t = plt.subplots(figsize=(10, 4), dpi=150)
-                    plot_tree(clf, feature_names=['Estrato'], class_names=['Temprana', 'Tardía'], filled=True, ax=ax_t)
-                    st.pyplot(fig_tree)
 
-        # =============================================================================
-        # 5. TABLERO HÍBRIDO AVANZADO
-        # =============================================================================
+        # 5. HÍBRIDO
         with tab5:
-            st.header("🔗 Tablero de Control: Predicción de Demanda Estacional")
+            st.header("Tablero de Control: Predicción de Demanda Estacional")
             if not PROPHET_AVAILABLE:
-                st.error("🚨 Requiere `prophet` en `requirements.txt`.")
+                st.error("Requiere prophet instalado.")
             else:
                 col_m1, col_m2, col_m3 = st.columns(3)
                 df_ins = df_crudo[df_crudo['¿ESNUEVO'] == 'NUEVO'].groupby(['PROGRAMA', 'AÑO', 'PERIODO']).size().reset_index(name='y')
@@ -321,25 +284,21 @@ try:
                         ax_h.scatter(pd.to_datetime(f"{anio_obj}-{1 if sem_obj==1 else 7}-01"), fut_y, color='red', s=100, marker='X')
                         st.pyplot(fig_h)
 
-        # =============================================================================
-        # 6. BIBLIOTECA DOCUMENTAL (NIVEL TESIS)
-        # =============================================================================
+        # 6. DOCUMENTACIÓN
         with tab6:
             st.header("Fundamentación Analítica")
-            d1, d2, d3 = st.tabs(["Metodología", "Garantía de Unicidad", "Algoritmos"])
+            d1, d2 = st.tabs(["Metodología", "Algoritmos"])
             with d1:
-                st.write("Este proyecto transforma la postura reactiva frente a la deserción en una predictiva. Los estudiantes de nivel 5+ representan un alto retorno de inversión debido al costo hundido.")
+                st.write("El motor ETL garantiza que si un estudiante reingresó tras un retiro, la deserción se anula del inventario comercial.")
             with d2:
-                st.write("El motor ETL garantiza que si un estudiante reingresó tras un retiro, la deserción se anula del inventario comercial, asegurando que el Call Center contacte solo a prospectos reales.")
-            with d3:
-                st.write("Se emplea Prophet para estacionalidad y Random Forest para corrección no lineal, logrando R2 superiores al 90%.")
+                st.write("Se emplea Prophet para estacionalidad y Random Forest para corrección no lineal.")
 
         # FOOTER
         st.markdown("---")
         st.markdown("""
             <div style="text-align: center; color: #606060; font-size: 15px; padding: 25px 0; background-color: #f8f9fa; border-radius: 10px;">
                 <strong>© 2026-1 | Corporación Universitaria Lasallista</strong><br><br>
-                Desarrollado por la <strong>Facultad de Ingeniería</strong> bajo la dirección de <strong>Feibert Alirio Guzmán Pérez</strong>.<br>
+                Desarrollo e Insumo de Investigación aportado por la <strong>Facultad de Ingeniería</strong> bajo la dirección general de <strong>Feibert Alirio Guzmán Pérez</strong>.<br>
                 Apoyo Técnico de Integración: <strong>Jonathan Berthen Castro</strong><br><br>
                 <i>Desarrollo tecnológico que soporta al proyecto de investigación del grupo <strong>G-3IN</strong>.</i>
             </div>
