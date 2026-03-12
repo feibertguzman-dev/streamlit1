@@ -43,7 +43,7 @@ try:
         
         st.markdown("---")
         
-        # Sidebar con filtros
+       # Sidebar con filtros
         st.sidebar.header("🔍 Filtros Generales")
         
         programas = df['PROGRAMA'].unique()
@@ -52,6 +52,11 @@ try:
         años = sorted(df['AÑO'].unique())
         año_seleccionado = st.sidebar.selectbox("Seleccionar Año", ["Todos"] + list(años))
         
+        # --- NUEVO FILTRO DE PERIODO ACADÉMICO ---
+        # Extraemos los periodos únicos (ej. 2021-1, 2021-2) y los ordenamos
+        periodos = sorted(df['PeriodoAcadémico'].dropna().unique())
+        periodo_seleccionado = st.sidebar.selectbox("Seleccionar Periodo Académico", ["Todos"] + list(periodos))
+        
         estados = df['ESTADO'].unique()
         estado_seleccionado = st.sidebar.selectbox("Seleccionar Estado", ["Todos"] + list(estados))
         
@@ -59,8 +64,14 @@ try:
         df_filtrado = df.copy()
         if programa_seleccionado != "Todos":
             df_filtrado = df_filtrado[df_filtrado['PROGRAMA'] == programa_seleccionado]
+            
         if año_seleccionado != "Todos":
             df_filtrado = df_filtrado[df_filtrado['AÑO'] == año_seleccionado]
+            
+        # Aplicar la lógica del nuevo filtro
+        if periodo_seleccionado != "Todos":
+            df_filtrado = df_filtrado[df_filtrado['PeriodoAcadémico'] == periodo_seleccionado]
+            
         if estado_seleccionado != "Todos":
             df_filtrado = df_filtrado[df_filtrado['ESTADO'] == estado_seleccionado]
         
@@ -189,3 +200,4 @@ try:
 except Exception as e:
     st.error(f"Error al cargar los datos: {str(e)}")
     st.info("Asegúrate de que el archivo DataSPSSReingreso.csv esté en el mismo directorio que app.py")
+
