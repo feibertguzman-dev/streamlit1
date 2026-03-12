@@ -293,3 +293,19 @@ try:
 except Exception as e:
     st.error("Error crítico en la ejecución del Dashboard. Verifica los datos de entrada.")
     st.exception(e)
+
+    # =============================================================================
+    # CRÉDITOS Y PROPIEDAD INTELECTUAL (FOOTER)
+    # =============================================================================
+    st.markdown("---")
+    st.markdown("""
+        <div style="text-align: center; color: #666666; font-size: 14px; padding: 20px 0;">
+            <strong>© 2026-1 | Corporación Universitaria Lasallista</strong><br>
+            Desarrollado por la <strong>Facultad de Ingeniería</strong> bajo la dirección de <strong>Feibert Alirio Guzmán Pérez</strong>.<br>
+            <i>Este tablero interactivo y modelo predictivo fungen como insumo y desarrollo tecnológico que soporta el proyecto de investigación adscrito al grupo de investigación <strong>G-3IN</strong>.</i>
+        </div>
+    """, unsafe_allow_html=True)
+
+except Exception as e:
+    st.error("Error crítico en la ejecución del Dashboard. Verifica los datos de entrada.")
+    st.exception(e)
