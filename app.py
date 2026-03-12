@@ -29,16 +29,17 @@ st.markdown("---")
 # -----------------------------------------------------------------------------
 @st.cache_data
 def load_data():
-    # Leer datos desde el CSV
     df = pd.read_csv("DataSPSSReingreso.csv", sep=";")
     
-    # Solución definitiva al error de la columna: 
-    # Búsqueda inteligente que ignora los caracteres corruptos
+    # Limpieza blindada de caracteres corruptos en columnas
+    df.columns = df.columns.str.replace('‘', '', regex=False)
+    df.columns = df.columns.str.replace('´', '', regex=False)
+    df.columns = df.columns.str.replace("'", '', regex=False)
+    
     for col in df.columns:
         if 'COHORTE' in col.upper() and col.upper().startswith('A'):
             df.rename(columns={col: 'AÑOCOHORTE'}, inplace=True)
             
-    # Conversiones y limpieza de otros datos
     df['NIVEL'] = pd.to_numeric(df['NIVEL'], errors='coerce').fillna(0)
     df['ESTRATO_NUM'] = df['ESTRATO'].astype(str).str.extract(r'(\d+)').astype(float).fillna(0)
     df['CIUDADRESIDENCIA'] = df['CIUDADRESIDENCIA'].astype(str).str.upper().str.strip()
@@ -64,8 +65,6 @@ try:
     prog_sel = st.sidebar.selectbox("Programa Académico", ["Todos"] + list(progs_disp))
     
     est_sel = st.sidebar.selectbox("Estrato Socioeconómico", ["Todos"] + list(sorted(df['ESTRATO'].dropna().unique())))
-    
-    # Ahora lee la columna corregida 'AÑOCOHORTE'
     cohorte_sel = st.sidebar.selectbox("Cohorte de Ingreso (Año)", ["Todos"] + list(sorted(df['AÑOCOHORTE'].dropna().unique(), reverse=True)))
 
     # APLICACIÓN DE FILTROS AL DATAFRAME PRINCIPAL
@@ -93,9 +92,10 @@ try:
     ])
     
     # =============================================================================
-    # MOTOR LÓGICO DE TARGETING (Calculado globalmente)
+    # PROCESO ETL: Principio de Unicidad Cronológica y Resolución de Conflictos
     # =============================================================================
     df_sorted = df_base.sort_values(by=['AÑO', 'PERIODO'])
+    
     def clasificar_target(estados):
         lista = estados.tolist()
         if 'Estudiante de Reingreso' in lista: return 'Reingresó Históricamente'
@@ -103,9 +103,10 @@ try:
         return 'No Aplica'
         
     estado_calc = df_sorted.groupby('DOCUMENTOIDENTIDAD')['ESTADO'].apply(clasificar_target).reset_index(name='Target_Gestión')
+    # Aislamiento del estado terminal absoluto (keep='last')
     df_univ = df_sorted.drop_duplicates('DOCUMENTOIDENTIDAD', keep='last').merge(estado_calc, on='DOCUMENTOIDENTIDAD')
     
-    # LA BASE DE ORO: Estudiantes Nivel 5+ listos para llamar
+    # LA BASE DE ORO: Prospectos decantados
     df_candidatos_finales = df_univ[(df_univ['NIVEL'] >= 5) & (df_univ['Target_Gestión'] == 'Candidato a Reingresar')]
 
     # =============================================================================
@@ -117,9 +118,9 @@ try:
         
         with st.expander("💡 ¿Cómo usar esta tabla de gestión?"):
             st.write("""
-            * **Objetivo:** Extraer la lista de estudiantes viables para reingreso.
+            * **Objetivo:** Extraer la lista de estudiantes viables para reingreso garantizando unicidad cronológica.
             * **Funcionamiento:** Esta tabla responde a los filtros de la izquierda. Si filtras por Estrato 3 o por el programa Zootecnia, esta tabla solo mostrará esos perfiles.
-            * **Acción:** Haz clic en el botón de abajo para descargar el archivo CSV, el cual puedes entregar a admisiones o call center para iniciar el contacto.
+            * **Acción:** Haz clic en el botón de abajo para descargar el archivo CSV unificado para el Call Center.
             """)
             
         cols_gestion = ['DOCUMENTOIDENTIDAD', 'NOMBRE', 'TELEFONO', 'CELULAR', 'EMAIL', 'PROGRAMA', 'NIVEL', 'ESTRATO', 'CIUDADRESIDENCIA']
@@ -128,7 +129,7 @@ try:
         st.dataframe(df_mostrar, use_container_width=True, height=400)
         
         st.download_button(
-            label="📥 Descargar Listado para Call Center (.CSV)",
+            label="📥 Descargar Listado Depurado (.CSV)",
             data=df_mostrar.to_csv(index=False, sep=";").encode('utf-8-sig'),
             file_name="Listado_Contacto_Reingresos_Unilasallista.csv",
             mime="text/csv"
@@ -147,8 +148,6 @@ try:
             ax_box.tick_params(axis='x', rotation=45)
             ax_box.set_xlabel("")
             st.pyplot(fig_box)
-            with st.expander("💡 ¿Cómo leer este gráfico?"):
-                st.write("La caja muestra dónde se ubica la mayoría de los estudiantes para ese estado. Si la caja 'Retirado' de hombres se ubica más arriba, significa que los hombres desertan en semestres más avanzados que las mujeres.")
 
         with colB:
             fig_hist, ax_hist = plt.subplots(figsize=(8, 4))
@@ -156,8 +155,6 @@ try:
             ax_hist.set_title("Volumen Sociodemográfico", fontweight='bold')
             ax_hist.set_ylabel("")
             st.pyplot(fig_hist)
-            with st.expander("💡 ¿Cómo leer este gráfico?"):
-                st.write("Compara el tamaño total de la población activa vs. retirada en cada estrato para visualizar dónde está el mayor riesgo financiero.")
 
         st.markdown("---")
         st.markdown("### 📍 Mapa de Calor Territorial")
@@ -182,8 +179,6 @@ try:
                                         hover_name="CIUDADRESIDENCIA", color_continuous_scale="Reds",
                                         size_max=45, zoom=8, mapbox_style="carto-positron")
             st.plotly_chart(fig_map, use_container_width=True)
-            with st.expander("💡 ¿Cómo leer el mapa?"):
-                st.write("Muestra la concentración de la población filtrada según la ciudad registrada en el sistema. Los círculos rojos y grandes representan mayor densidad poblacional. Sirve para dirigir campañas de mercadeo físico.")
 
     # =============================================================================
     # PESTAÑA 3: SIMULADOR DE ESCENARIOS
@@ -192,7 +187,7 @@ try:
         st.header("Simulador de Retorno Financiero (Estrategia Activa)")
         base_ini = len(df_candidatos_finales)
         
-        st.markdown(f"El simulador parte de **{base_ini} estudiantes** listos para ser contactados. Mueve el control deslizante para establecer tu meta de conversión:")
+        st.markdown(f"El simulador parte de **{base_ini} estudiantes decantados**. Establece tu meta de conversión:")
         tasa_recup = st.slider("🎯 Tasa de Éxito Comercial (% de reingresos logrados por periodo)", min_value=1.0, max_value=50.0, value=10.0, step=1.0) / 100.0
         
         per_futuros = [f"{y}-{s}" for y in range(2026, 2033) for s in [1, 2]][1:13] 
@@ -223,16 +218,9 @@ try:
         ax_b.legend(lines1 + lines2, labels1 + labels2, loc='upper right')
         ax_l.get_legend().remove()
         st.pyplot(fig_sim)
-        
-        with st.expander("💡 ¿Cómo interpretar esta Proyección Financiera?"):
-            st.write("""
-            Este es un modelo determinístico para planear presupuesto.
-            * **Barras Azules:** Muestran cuántos estudiantes vas a matricular en cada semestre si cumples tu tasa de éxito objetivo.
-            * **Línea Roja:** Es tu 'inventario' de números de teléfono. Se va acabando porque conforme más gente reingresa, menos personas tienes para llamar en el siguiente periodo.
-            """)
 
     # =============================================================================
-    # PESTAÑA 4: MACHINE LEARNING (CON OBJETIVIDAD Y RIGOR)
+    # PESTAÑA 4: MACHINE LEARNING
     # =============================================================================
     with tab4:
         st.header("Modelos Predictivos (Machine Learning)")
@@ -256,15 +244,11 @@ try:
             ax_reg.set_xticklabels(list(tendencia['PeriodoAcadémico']) + per_futuros, rotation=45)
             ax_reg.legend()
             st.pyplot(fig_reg)
-            with st.expander("💡 ¿Cómo interpretar la proyección de regresión?"):
-                st.write("La línea verde es el pasado, y su 'sombra' transparente es el margen de error del algoritmo calculado sobre variaciones previas. La línea naranja punteada muestra cuántos estudiantes reingresarán por pura inercia en el futuro si la universidad mantiene las condiciones actuales.")
         else:
             st.warning("No hay suficientes semestres con historial de reingresos bajo estos filtros para trazar la línea de regresión.")
 
         st.markdown("---")
         st.subheader("2. Árbol de Decisión: Perfil de Deserción")
-        st.info("Dado que la base de datos presenta muy pocos reingresos históricos para entrenar una IA confiable, este árbol de decisión inteligente analiza los factores sociodemográficos que causan la deserción, dividiéndola en Temprana (Nivel 1 al 4) y Tardía (Nivel 5 al 10).")
-        
         df_tree = df_univ[df_univ['ESTADO'].isin(['Estudiante Retirado', 'Canceló Periodo'])].copy()
         if len(df_tree) > 10:
             df_tree['Retiro_Tardío'] = np.where(df_tree['NIVEL'] >= 5, 1, 0)
@@ -274,28 +258,37 @@ try:
             clf.fit(X, df_tree['Retiro_Tardío'])
             
             fig_tree, ax_t = plt.subplots(figsize=(8, 4), dpi=150)
-            plot_tree(clf, feature_names=['Estrato'], class_names=['Deserción Temprana', 'Deserción Tardía (Target)'], filled=True, rounded=True, ax=ax_t)
+            plot_tree(clf, feature_names=['Estrato'], class_names=['Deserción Temprana', 'Deserción Tardía'], filled=True, rounded=True, ax=ax_t)
             st.pyplot(fig_tree)
-            with st.expander("💡 ¿Cómo interpretar este Árbol de Reglas?"):
-                st.write("El sistema evalúa las reglas. Por ejemplo, si en la caja superior dice 'Estrato <= 3.5', significa que el algoritmo separó a los estratos 1, 2 y 3 de los estratos 4, 5 y 6. Sigue las ramas hacia abajo para descubrir si el retiro tardío (nuestro Target) se concentra en los estratos bajos o en los altos según el color y proporción de la caja.")
 
     # =============================================================================
     # PESTAÑA 5: DOCUMENTACIÓN EXHAUSTIVA Y DESPLEGABLES
     # =============================================================================
     with tab5:
-        st.header("📖 Manual Interactivo del Dashboard")
+        st.header("📖 Manual Interactivo y Reglas de Negocio")
         
-        with st.expander("🎯 ¿Cuál es el propósito del sistema?"):
-            st.write("El Dashboard es la plataforma analítica de la Vicerrectoría Financiera. Está diseñado para predecir y planear la captación de cartera en estudiantes desertores. Transforma una base de datos plana en un embudo de ventas y proyecciones presupuestales.")
+        with st.expander("⚖️ Principio de Unicidad Cronológica (Resolución de Conflictos ETL)"):
+            st.markdown("""
+            **El Reto Transaccional:**
+            En las bases de datos institucionales, un mismo individuo genera múltiples registros a lo largo del tiempo. Un estudiante puede aparecer como "Matriculado" en 2021, "Retirado" en 2022, "Reingreso" en 2023, y volver a figurar como "Retirado" en 2025.
             
-        with st.expander("⚙️ ¿Cómo aplican los filtros (Panel Izquierdo)?"):
-            st.write("Al seleccionar un programa (Ej. Zootecnia), todo el sistema ignora al resto de la universidad. La tabla de gestión se reduce a candidatos de Zootecnia, el simulador recalcula el dinero recuperable solo para Zootecnia, y el modelo de Machine Learning re-evalúa el comportamiento exclusivo de esa carrera.")
+            **La Solución Implementada:**
+            El sistema ejecuta un procedimiento de Extracción, Transformación y Carga (ETL) en segundo plano que garantiza la integridad transaccional mediante las siguientes reglas:
             
-        with st.expander("📊 ¿Qué es la 'Gestión y Contacto'?"):
-            st.write("Es la función operativa del dashboard. Toma las reglas de negocio (Solo alumnos de Nivel 5 o superior que estén en estado Retirado/Aplazado y que nunca hayan reingresado) y extrae sus correos y teléfonos listos para ser entregados al Call Center.")
-
-        with st.expander("🧠 Ética del Machine Learning implementado"):
-            st.write("Entrenar un modelo de Inteligencia Artificial para que prediga 'qué alumno va a reingresar' cuando en el histórico solo hay 2 alumnos que lo han hecho frente a cientos que no, es forzar a la máquina a mentir. Por ello, la IA se calibró para encontrar correlaciones descriptivas reales y útiles, como los mapas territoriales y los factores de abandono tardío.")
+            1. **Aislamiento Terminal:** Agrupa el historial por `DOCUMENTOIDENTIDAD`, ordena los eventos cronológicamente y aísla de manera exclusiva el registro correspondiente a la fecha máxima absoluta (estado terminal).
+            2. **Anulación de Eventos Históricos:** Si un estudiante se había retirado, pero posteriormente reingresó, el modelo predictivo asume el reingreso como su estado definitivo y **anula la deserción previa**.
+            3. **Garantía de Integridad:** Este proceso transforma un historial longitudinal en una fotografía transversal exacta. Evita la duplicación de identidades, asegura recuentos impecables para Power BI, y garantiza que el equipo de admisiones no contacte a estudiantes que ya se encuentran activos.
+            """)
+            
+        with st.expander("🎯 Objetivo Estratégico"):
+            st.write("Plataforma diseñada para la Vicerrectoría Financiera. Convierte el historial plano de deserciones en un embudo interactivo para planear, presupuestar y proyectar retornos de inversión en campañas de readmisión.")
+            
+        with st.expander("🧠 Inteligencia Artificial y Calidad de Datos (Data Quality)"):
+            st.write("""
+            El modelo rechaza generar predicciones engañosas. Si el historial de "casos de éxito" (reingresos) es ínfimo frente a los "casos de fracaso" (retiros), la IA se ajusta para encontrar patrones descriptivos confiables, tales como:
+            * **Regresión con Varianza:** La zona sombreada alrededor de la línea verde representa el intervalo de confianza (margen de error) calculado sobre el comportamiento histórico.
+            * **Árboles de Perfilamiento:** Divide matemáticamente a la población según estrato y nivel para descubrir dónde se genera la mayor fricción en la permanencia académica.
+            """)
 
 except Exception as e:
     st.error("Error crítico en la ejecución del Dashboard. Verifica los datos de entrada.")
