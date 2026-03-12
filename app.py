@@ -79,43 +79,44 @@ try:
         logo_uni = get_base64_of_bin_file("logoUnilasalle.png")
         logo_est = get_base64_of_bin_file("est.png")
         
-        # CSS encapsulado para evitar bugs
+        # CSS encapsulado sin espacios a la izquierda para evitar bug de texto
         css_code = """
-        <style>
-        .welcome-container {
-            background-color: #ffffff; border-radius: 15px; padding: 50px 40px;
-            box-shadow: 0 10px 30px rgba(10,38,71,0.1); text-align: center;
-            border-top: 8px solid #0a2647; border-bottom: 8px solid #ffcb05; margin-bottom: 30px;
-        }
-        .logos-wrapper { display: flex; justify-content: center; align-items: center; gap: 50px; margin-bottom: 30px; }
-        .title-main { color: #0a2647; font-size: 34px; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; }
-        .subtitle-main { color: #4a52c7; font-size: 18px; font-weight: 700; margin-bottom: 25px; letter-spacing: 1px; }
-        .brand-quote { font-style: italic; color: #0a2647; font-weight: 700; font-size: 24px; margin-top: 15px; margin-bottom: 25px; }
-        .text-body { color: #606060; font-size: 18px; line-height: 1.7; font-weight: 500; margin-bottom: 30px; max-width: 850px; margin-left: auto; margin-right: auto; }
-        .highlight { color: #4a52c7; font-weight: 700; }
-        </style>
-        """
+<style>
+.welcome-container {
+    background-color: #ffffff; border-radius: 15px; padding: 50px 40px;
+    box-shadow: 0 10px 30px rgba(10,38,71,0.1); text-align: center;
+    border-top: 8px solid #0a2647; border-bottom: 8px solid #ffcb05; margin-bottom: 30px;
+}
+.logos-wrapper { display: flex; justify-content: center; align-items: center; gap: 50px; margin-bottom: 30px; }
+.title-main { color: #0a2647; font-size: 34px; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; }
+.subtitle-main { color: #4a52c7; font-size: 18px; font-weight: 700; margin-bottom: 25px; letter-spacing: 1px; }
+.brand-quote { font-style: italic; color: #0a2647; font-weight: 700; font-size: 24px; margin-top: 15px; margin-bottom: 25px; }
+.text-body { color: #606060; font-size: 18px; line-height: 1.7; font-weight: 500; margin-bottom: 30px; max-width: 850px; margin-left: auto; margin-right: auto; }
+.highlight { color: #4a52c7; font-weight: 700; }
+</style>
+"""
         
+        # HTML sin espacios a la izquierda
         html_code = f"""
-        <div class="welcome-container">
-            <div class="logos-wrapper">
-                <img src="data:image/png;base64,{logo_uni}" width="280" alt="Logo Unilasallista">
-                <img src="data:image/png;base64,{logo_est}" width="160" alt="Logo Estudiantes">
-            </div>
-            <div class="title-main">Inteligencia Analítica y Retención</div>
-            <div class="subtitle-main">VICERRECTORÍA FINANCIERA | CORPORACIÓN UNIVERSITARIA LASALLISTA</div>
-            
-            <div class="brand-quote">
-                "Un lugar que te abraza y a la vez te impulsa."
-            </div>
+<div class="welcome-container">
+    <div class="logos-wrapper">
+        <img src="data:image/png;base64,{logo_uni}" width="280" alt="Logo Unilasallista">
+        <img src="data:image/png;base64,{logo_est}" width="160" alt="Logo Estudiantes">
+    </div>
+    <div class="title-main">Inteligencia Analítica y Retención</div>
+    <div class="subtitle-main">VICERRECTORÍA FINANCIERA | CORPORACIÓN UNIVERSITARIA LASALLISTA</div>
+    
+    <div class="brand-quote">
+        "Un lugar que te abraza y a la vez te impulsa."
+    </div>
 
-            <div class="text-body">
-                Bienvenido a la plataforma de Inteligencia de Negocios enfocada en la viabilidad financiera y la retención académica.
-                Este software procesa miles de transacciones históricas para transformarlas en un <span class="highlight">embudo de recuperación comercial</span>,
-                proyectando el comportamiento orgánico y perfilando el riesgo de deserción.
-            </div>
-        </div>
-        """
+    <div class="text-body">
+        Bienvenido a la plataforma de Inteligencia de Negocios enfocada en la viabilidad financiera y la retención académica.
+        Este software procesa miles de transacciones históricas para transformarlas en un <span class="highlight">embudo de recuperación comercial</span>,
+        proyectando el comportamiento orgánico y perfilando el riesgo de deserción.
+    </div>
+</div>
+"""
         
         st.markdown(css_code + html_code, unsafe_allow_html=True)
         st.info(f"💾 **Auditoría de Datos:** Se han detectado **{len(df_crudo):,} registros transaccionales** listos para ser procesados matemáticamente.")
@@ -125,7 +126,6 @@ try:
         if col_btn2.button("🚀 INGRESAR AL DASHBOARD", use_container_width=True, type="primary"):
             st.session_state['app_iniciada'] = True
             st.rerun()
-            
     # =============================================================================
     # DASHBOARD PRINCIPAL 
     # =============================================================================
@@ -530,3 +530,4 @@ try:
 except Exception as e:
     st.error("Error crítico en la ejecución del Dashboard. Verifica los datos de entrada o contacta al administrador del sistema.")
     st.exception(e)
+
